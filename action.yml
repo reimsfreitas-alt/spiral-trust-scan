@@ -1,0 +1,21 @@
+name: "Spiral Trust Scan"
+description: "Local heuristic scan of agent code for missing authorization, unverifiable effects, replay risk and unconfirmed irreversible actions. Runs on the runner; sends nothing anywhere."
+author: "Spiral Codes"
+branding:
+  icon: "shield"
+  color: "yellow"
+inputs:
+  path:
+    description: "Path to scan, relative to the workspace."
+    required: false
+    default: "."
+  fail-on:
+    description: "Fail the job at this severity or above: critical, high, medium or none."
+    required: false
+    default: "high"
+runs:
+  using: "composite"
+  steps:
+    - name: Run Spiral Trust Scan
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/bin/trust-scan.mjs" "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}"
