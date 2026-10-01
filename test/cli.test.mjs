@@ -94,3 +94,13 @@ test('verify-receipt: an Ed25519 signature over the canonical payload verifies o
   assert.equal(verifyEd25519({ ...payload, verdict: 'DEVIATED' }, sig, spki), false);
   assert.equal(verifyEd25519(payload, 'ed25519:' + '0'.repeat(128), spki), false);
 });
+
+test('secret-exposure ignores prefix constants, placeholders and header names (false positives found on real public repos)', () => {
+  const benign = [
+    'case strings.HasPrefix(cfg.Token, "ghp_"):',
+    'STRIPE_SECRET_KEY=sk_test_xxx python init_products.py',
+    'const h = `Bearer resource_metadata="${baseUrl}/.well-known/x`',
+  ];
+  for (const src of benign) assert.ok(!cliAnalyze('repo', 't', src).findings.some((f) => f.id === 'secret-exposure'), src);
+  assert.ok(cliAnalyze('repo', 't', 'k = "ghp_abcdefghijklmnopqrstuvwxyz0123456789"').findings.some((f) => f.id === 'secret-exposure'));
+});

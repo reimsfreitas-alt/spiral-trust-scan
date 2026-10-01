@@ -35,6 +35,16 @@ Limits: scans files up to 200 KB with common source and log extensions, skips `n
 
 The action runs the same script on the runner. Nothing is sent anywhere.
 
+## Measured precision (read before trusting a finding)
+
+We ran this scanner file by file over 11 public agent/MCP repositories (2,285 source files) to see how it behaves outside our own tests. What we found:
+
+- The heuristic works per file, with keyword matching. It cannot see an authorization gate that lives in another file, so `authorization-gap` and `unverifiable-effect` often fire on HTTP helpers, telemetry, CLI code and demo apps that simply call `fetch`. Treat those two as "look here", not "this is a vulnerability".
+- `secret-exposure` had false positives on prefix constants (`"ghp_"`), placeholders (`sk_test_xxx`) and header names. These are fixed and covered by a regression test; some residual false positives are still possible.
+- We did not publish "X% of projects are vulnerable" numbers, because this method cannot support them.
+
+Treat every finding as a pointer for a human to check.
+
 ## Same analysis as the free web scanner
 
 The core is the same analysis the free web scanner runs. If you prefer a page to a terminal, paste code at https://spiral-os-matrix-current.vercel.app/#trust-scanner and you get a shareable result link.

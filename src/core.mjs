@@ -26,7 +26,7 @@ export function analyzeTrustSurface(sourceType, sourceLabel, rawSource) {
   const observation = /(receipt|ledger|evidence|observed|verification|verify|proof|trace|result|payment_status|stripeeventid)/i.test(source);
   const idempotency = /(idempotenc|dedup|eventid|stripeeventid|already.?processed|lock|lease|unique)/i.test(source);
   const confirmation = /(confirm|approval|human.?in.?the.?loop|two.?step|dry.?run)/i.test(source);
-  const secretPattern = /(sk_(?:live|test)_|gh[pousr]_|xox[baprs]-|AKIA[0-9A-Z]{16}|Bearer\s+[A-Za-z0-9._~+\/=-]{16,})/i.test(rawSource);
+  const secretPattern = /(sk_(?:live|test)_[A-Za-z0-9]{6,}|gh[pousr]_[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|Bearer\s+(?=[A-Za-z0-9._~+\/=-]*\d)[A-Za-z0-9._~+\/=-]{16,})/i.test(rawSource);
   const promptInjection = /(ignore (all|any|the) previous|system prompt|jailbreak|disregard instructions|developer message)/i.test(source);
   const toolCallsDetected = (source.match(/(tool_call|toolcall|function_call|function\s+\w+\s*\(|tool\s*[:=]|execute\s*\(|invoke\s*\()/gi) ?? []).length;
 
