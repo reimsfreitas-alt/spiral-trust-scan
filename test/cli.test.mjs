@@ -81,3 +81,16 @@ test('code that merely parses an Authorization header is not reported as leaked 
     assert.ok(analyze('repo', 't', 'k = "sk_live_abc123"').findings.some((f) => f.id === 'secret-exposure'));
   }
 });
+
+import { generateKeyPairSync, sign } from 'node:crypto';
+import { canonical, verifyEd25519 } from '../bin/verify-receipt.mjs';
+
+test('verify-receipt: an Ed25519 signature over the canonical payload verifies offline, and any change breaks it', () => {
+  const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+  const spki = publicKey.export({ type: 'spki', format: 'der' }).toString('base64');
+  const payload = { receiptId: 'rcpt_x', verdict: 'CONFIRMED', claim: { b: 1, a: 2 } };
+  const sig = 'ed25519:' + sign(null, Buffer.from(canonical(payload)), privateKey).toString('hex');
+  assert.equal(verifyEd25519({ claim: { a: 2, b: 1 }, verdict: 'CONFIRMED', receiptId: 'rcpt_x' }, sig, spki), true); // key order irrelevant
+  assert.equal(verifyEd25519({ ...payload, verdict: 'DEVIATED' }, sig, spki), false);
+  assert.equal(verifyEd25519(payload, 'ed25519:' + '0'.repeat(128), spki), false);
+});

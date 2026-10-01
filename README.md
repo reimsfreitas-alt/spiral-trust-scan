@@ -55,10 +55,17 @@ MIT. See `LICENSE`.
 
 ## A claim you can check
 
-Spiral's verification service issued a signed receipt for one claim about this repository: *it is public and MIT-licensed*. The service fetched GitHub's public API itself, applied three rules, and recorded the result in an append-only, hash-chained ledger. Anyone can ask the issuer to confirm the receipt is genuine, with no account or key:
+Spiral's verification service issued a signed receipt for one claim about this repository: *it is public and MIT-licensed*. The service fetched GitHub's public API itself, applied three rules, and recorded the result in an append-only, hash-chained ledger (receipt `rcpt_6b9e7440-d7a6-4525-bf63-698ec209dd52`).
+
+**Check it yourself, offline.** The receipt carries an Ed25519 signature. The issuer's public key is published at `/api/v1/public/key`, so you do not have to ask the issuer whether its own receipt is genuine:
 
 ```
-https://spiral-os-matrix-current.vercel.app/api/v1/public/receipt?id=rcpt_6b9e7440-d7a6-4525-bf63-698ec209dd52&signature=hmac-sha256:34c97a361722ec4df4a59ed4c5b77875125198a6b2cf17429f29f80ba6cd134f
+curl -s "https://spiral-os-matrix-current.vercel.app/api/v1/public/receipt?id=rcpt_6b9e7440-d7a6-4525-bf63-698ec209dd52" > receipt.json
+node bin/verify-receipt.mjs receipt.json \
+  --signature ed25519:290ddd162e4c7c169e135f4960cdf44a7eadd03fc03cca686c55789293636da388ee6e9ddf60c733e1b9f8e96287b48a4d1e8f67a3e6b791a26a89bc2726d50c \
+  --public-key MCowBQYDK2VwAyEALriybIkO1GdZ/3SNB+vccalGzaNDxmiiU+hdEzD4EzE=
 ```
 
-`"authentic": true` means the signature matches the ledger entry. Change one character of the signature and it returns `false`. This is a reference receipt issued by the project itself, not a customer case, and the service checks rules against evidence it is given; it does not prove anything beyond that evidence.
+The script uses only `node:crypto`. Change one character of the payload or the signature and it prints `NOT AUTHENTIC`. There is also an online check with no key: `...?id=<id>&signature=<signature>` returns `"authentic": true|false`.
+
+**What this does and does not show.** It shows that this issuer signed this exact result and that the ledger entry is chained after the previous one. It does not show that the issuer is honest, and it does not make the evidence true: evidence marked `provided` is self-reported by whoever submits it, and `http` evidence is whatever the URL returned when the issuer fetched it. The ledger is not yet anchored anywhere public, so the issuer could in principle rewrite history; publishing the ledger head in a public repository is the next step. This is a reference receipt issued by the project itself, not a customer case. The scanner above is a heuristic and proves nothing about your code.
