@@ -27,7 +27,7 @@ Limits: scans files up to 200 KB with common source and log extensions, skips `n
 ## GitHub Action
 
 ```yaml
-- uses: reimsfreitas-alt/spiral-trust-scan@v1
+- uses: reimsfreitas-alt/spiral-trust-scan@main
   with:
     path: .
     fail-on: high
