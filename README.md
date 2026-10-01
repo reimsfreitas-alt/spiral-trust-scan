@@ -52,3 +52,13 @@ One of the tests checks that the package contains no network code, so the "nothi
 ## License
 
 MIT. See `LICENSE`.
+
+## A claim you can check
+
+Spiral's verification service issued a signed receipt for one claim about this repository: *it is public and MIT-licensed*. The service fetched GitHub's public API itself, applied three rules, and recorded the result in an append-only, hash-chained ledger. Anyone can ask the issuer to confirm the receipt is genuine, with no account or key:
+
+```
+https://spiral-os-matrix-current.vercel.app/api/v1/public/receipt?id=rcpt_6b9e7440-d7a6-4525-bf63-698ec209dd52&signature=hmac-sha256:34c97a361722ec4df4a59ed4c5b77875125198a6b2cf17429f29f80ba6cd134f
+```
+
+`"authentic": true` means the signature matches the ledger entry. Change one character of the signature and it returns `false`. This is a reference receipt issued by the project itself, not a customer case, and the service checks rules against evidence it is given; it does not prove anything beyond that evidence.
