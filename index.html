@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Spiral Trust Scan — verificação independente de riscos em checkouts e páginas de pagamento.">
+  <title>Spiral Trust — Scanner de Vulnerabilidade e Vazamento em Checkouts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0A0A0A] text-white font-sans antialiased selection:bg-[#D4AF37] selection:text-black">
+  <header class="border-b border-white/10 py-6 px-6 max-w-5xl mx-auto flex justify-between items-center">
+    <span class="text-lg font-bold tracking-widest text-[#D4AF37]">SPIRAL TRUST SCAN</span>
+    <span class="text-xs text-zinc-500 font-mono">AUDITORIA DE CHECKOUT EM 15s</span>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <span class="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest text-[#D4AF37] uppercase bg-[#D4AF37]/10 rounded-full border border-[#D4AF37]/30">
+      Independent Reality Verification &bull; Trust Engine
+    </span>
+
+    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+      Seu checkout vaza dados ou perde vendas para <span class="text-[#D4AF37]">chargebacks ocultos?</span>
+    </h1>
+
+    <p class="text-zinc-400 text-lg sm:text-xl mb-12 max-w-2xl mx-auto">
+      Cole a URL da sua página de pagamento ou checkout (Kiwify, Hotmart, Stripe) abaixo. Nosso motor verifica sinais de conformidade, riscos de LGPD e brechas de disputa.
+    </p>
+
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 shadow-2xl text-left mb-12">
+      <label class="block text-sm font-medium text-zinc-300 mb-2 font-mono uppercase" for="checkoutUrl">
+        Insira a URL do seu Checkout ou Página de Vendas:
+      </label>
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <input
+          type="url"
+          id="checkoutUrl"
+          inputmode="url"
+          autocomplete="url"
+          placeholder="https://pay.kiwify.com.br/..."
+          class="flex-1 bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white font-mono text-sm focus:outline-none focus:border-[#D4AF37]"
+        >
+        <button
+          id="scanButton"
+          type="button"
+          class="bg-[#D4AF37] hover:bg-[#c49f30] text-black font-bold px-6 py-3 rounded-xl transition-all text-sm whitespace-nowrap"
+        >
+          ESCANEAR CHECKOUT
+        </button>
+      </div>
+
+      <div id="scanOutput" class="hidden bg-black/80 border border-red-500/30 rounded-xl p-5 font-mono text-xs text-zinc-300 space-y-3" aria-live="polite">
+        <div class="text-red-400 font-bold flex items-center gap-2">
+          <span>⚠️ SINAIS QUE MERECEM VERIFICAÇÃO</span>
+        </div>
+        <div class="grid grid-cols-1 gap-2 text-zinc-400 pt-2 border-t border-zinc-800">
+          <div>• Parâmetros de rastreio podem atravessar requisições de gateway.</div>
+          <div>• Verifique se existe recibo de evidência de consumo vinculado ao pagamento.</div>
+          <div>• Verifique se logs de sessão e acesso podem sustentar uma contestação.</div>
+        </div>
+        <div class="pt-4">
+          <a
+            id="dossierCta"
+            href="https://spiralwealth.com.br"
+            class="block w-full text-center py-3 bg-[#D4AF37] hover:bg-[#c49f30] text-black font-extrabold rounded-lg transition-all"
+          >
+            GERAR DOSSIÊ COMPLETO E RECIBO POR R$ 197 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-6 py-12 border-t border-white/5 text-center text-xs text-zinc-600 font-mono">
+    Spiral Trust &bull; O cliente puxa, o motor prova. Zero e-mails frios.
+  </footer>
+
+  <script>
+    (() => {
+      const input = document.getElementById("checkoutUrl");
+      const button = document.getElementById("scanButton");
+      const output = document.getElementById("scanOutput");
+      const cta = document.getElementById("dossierCta");
+
+      function validUrl(value) {
+        try {
+          const url = new URL(value.trim());
+          return url.protocol === "https:" || url.protocol === "http:";
+        } catch {
+          return false;
+        }
+      }
+
+      function eventId() {
+        if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+        return "scan_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+      }
+
+      async function initMeta() {
+        try {
+          const response = await fetch("/api/meta/config", { cache: "no-store" });
+          const config = await response.json();
+          if (!config.pixelId) return;
+
+          const script = document.createElement("script");
+          script.async = true;
+          script.src = "https://connect.facebook.net/en_US/fbevents.js";
+          document.head.appendChild(script);
+
+          globalThis.fbq = globalThis.fbq || function() {
+            (globalThis.fbq.callMethod ? globalThis.fbq.callMethod : globalThis.fbq.queue.push.bind(globalThis.fbq.queue))(arguments);
+          };
+          globalThis.fbq.push = globalThis.fbq;
+          globalThis.fbq.loaded = true;
+          globalThis.fbq.version = "2.0";
+          globalThis.fbq.queue = [];
+          globalThis.fbq("init", config.pixelId);
+          globalThis.fbq("track", "PageView");
+        } catch {
+          // Analytics must never block the scanner.
+        }
+      }
+
+      async function trackScan(domain, id) {
+        if (typeof globalThis.fbq === "function") {
+          globalThis.fbq("trackCustom", "ExecutouScan", { target_domain: domain }, { eventID: id });
+        }
+        try {
+          await fetch("/api/meta/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            keepalive: true,
+            body: JSON.stringify({ eventName: "ExecutouScan", eventId: id, targetDomain: domain })
+          });
+        } catch {
+          // Analytics is best-effort and never blocks the user flow.
+        }
+      }
+
+      button.addEventListener("click", async () => {
+        const value = input.value.trim();
+        if (!validUrl(value)) {
+          input.focus();
+          input.setCustomValidity("Insira uma URL HTTP ou HTTPS válida.");
+          input.reportValidity();
+          return;
+        }
+        input.setCustomValidity("");
+
+        const target = new URL(value);
+        const id = eventId();
+        await trackScan(target.hostname, id);
+
+        output.classList.remove("hidden");
+        cta.focus({ preventScroll: true });
+      });
+
+      input.addEventListener("input", () => input.setCustomValidity(""));
+      initMeta();
+    })();
+  </script>
+</body>
+</html>
