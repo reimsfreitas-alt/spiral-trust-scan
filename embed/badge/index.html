@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spiral Trust Badge</title></head>
+<body style="margin:0;background:#0A0A0A;color:#fff;font:12px ui-monospace,SFMono-Regular,Menlo,monospace">
+<div style="width:300px;min-height:80px;box-sizing:border-box;border:1px solid #64FFDA;padding:12px;background:#0A0A0A">
+  <div style="color:#64FFDA;font-size:10px">VERIFICADO POR SPIRAL TRUTH</div>
+  <div id="hash" style="color:#fff;margin-top:7px">Recibo verificável</div>
+  <a id="proof" href="https://spiral-truth.vercel.app/" target="_blank" rel="noopener" style="display:inline-block;margin-top:9px;color:#aaa;font-size:10px">Ver prova completa → Gere o seu</a>
+</div>
+<script>
+(()=>{const p=new URLSearchParams(location.search);const r=p.get("r");const h=p.get("hash");if(r){document.getElementById("hash").textContent="Recibo #"+r+(h?" · Hash: "+h.slice(0,16)+"…":"");document.getElementById("proof").href="https://spiral-truth.vercel.app/r/"+encodeURIComponent(r)+"?utm_source=badge&utm_medium=referral&utm_campaign=autopropulsor";}})();
+</script>
+</body></html>
