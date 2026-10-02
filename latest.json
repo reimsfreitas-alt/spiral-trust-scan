@@ -1,0 +1,221 @@
+{
+  "schema": "spiral.probe.v1",
+  "run_at": "2026-10-02T16:58:16.537Z",
+  "runner": "github-actions:37037515314",
+  "summary": {
+    "DEVIATED": 7,
+    "CONFIRMED": 5,
+    "OBSERVED": 1
+  },
+  "results": [
+    {
+      "id": "dist-prod-root",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/",
+      "observed_at": "2026-10-02T16:58:15.193Z",
+      "status": 307,
+      "content_type": "text/plain",
+      "location": "/page/",
+      "body_head": "Redirecting...\n",
+      "body_sha256": "7c040f8633b8823d72ed63da9b3b2dfe9846e912c66a64c9433ec9c4815d76c2",
+      "body_bytes": 15,
+      "ms": 88,
+      "problems": [
+        "status 307 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-unknown-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/rota-inexistente-123",
+      "observed_at": "2026-10-02T16:58:15.281Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html>\n<html lang=\"pt-BR\">\n<head><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta na",
+      "body_sha256": "439f77d4fa55de6c8902478953cb3709db45d0aef9da424453e8a6b3ce3a61f7",
+      "body_bytes": 30974,
+      "ms": 37,
+      "problems": [
+        "status 200 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-badge-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/embed/badge?r=FAKE",
+      "observed_at": "2026-10-02T16:58:15.318Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html>\n<html lang=\"pt-BR\">\n<head><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta na",
+      "body_sha256": "439f77d4fa55de6c8902478953cb3709db45d0aef9da424453e8a6b3ce3a61f7",
+      "body_bytes": 30974,
+      "ms": 13,
+      "problems": [
+        "status 200 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-chargeback-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/chargeback/saas/sao-paulo",
+      "observed_at": "2026-10-02T16:58:15.331Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html>\n<html lang=\"pt-BR\">\n<head><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta na",
+      "body_sha256": "439f77d4fa55de6c8902478953cb3709db45d0aef9da424453e8a6b3ce3a61f7",
+      "body_bytes": 30974,
+      "ms": 21,
+      "problems": [
+        "status 200 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-sitemap-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/sitemap.xml",
+      "observed_at": "2026-10-02T16:58:15.352Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html>\n<html lang=\"pt-BR\">\n<head><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\">\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta na",
+      "body_sha256": "439f77d4fa55de6c8902478953cb3709db45d0aef9da424453e8a6b3ce3a61f7",
+      "body_bytes": 30974,
+      "ms": 9,
+      "problems": [
+        "status 200 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-health",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/health",
+      "observed_at": "2026-10-02T16:58:15.361Z",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "location": null,
+      "body_head": "{\"service\":\"distribution-engine\",\"status\":\"online\",\"version\":\"1.0.0\",\"build\":\"vercel\",\"uptimeSeconds\":313,\"ledger\":\"http://localhost:4700\",\"providers\":[\"linkedin\",\"facebook\",\"discord\",\"telegram\",\"emai",
+      "body_sha256": "81a1af61ec28af1b900373679559955945b5e490bf8e36a3cb4d85bf6325cead",
+      "body_bytes": 267,
+      "ms": 43,
+      "problems": [
+        "body has forbidden \"localhost\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prod-root",
+      "method": "GET",
+      "url": "https://spiral-truth.vercel.app/",
+      "observed_at": "2026-10-02T16:58:15.404Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Spiral Truth — Vitrine</title><link rel=\"icon\" type=\"image/svg+x",
+      "body_sha256": "d2b8c533794b9543a28c1dad727e88f4fa8e712f9a8a609fd8fea9ed75f89a49",
+      "body_bytes": 24641,
+      "ms": 73,
+      "problems": [
+        "body lacks \"Quando um cliente contesta a cobrança\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prod-badge-404",
+      "method": "GET",
+      "url": "https://spiral-truth.vercel.app/embed/badge?r=FAKE",
+      "observed_at": "2026-10-02T16:58:15.477Z",
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/sta",
+      "body_sha256": "b57b3a750e2e841945302d9156654b3d8dc9a33e16ee920a5a756f46d52a6f69",
+      "body_bytes": 7248,
+      "ms": 16,
+      "problems": [],
+      "verdict": "CONFIRMED"
+    },
+    {
+      "id": "truth-prod-partner-404",
+      "method": "POST",
+      "url": "https://spiral-truth.vercel.app/api/partner/webhook",
+      "observed_at": "2026-10-02T16:58:15.493Z",
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/sta",
+      "body_sha256": "b57b3a750e2e841945302d9156654b3d8dc9a33e16ee920a5a756f46d52a6f69",
+      "body_bytes": 7248,
+      "ms": 15,
+      "problems": [],
+      "verdict": "CONFIRMED"
+    },
+    {
+      "id": "intent-prod-voice-route",
+      "method": "GET",
+      "url": "https://spiral-intent-v21-exceptional-git-main-spiral-codes.vercel.app/api/spiral-voice",
+      "observed_at": "2026-10-02T16:58:15.508Z",
+      "status": 404,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!DOCTYPE html><html lang=\"en\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/02cbcb1bf86d53c8.css\" da",
+      "body_sha256": "670b433f2f7b8b6bd88104ca2584105674f8dba0121b18a75c7548854457f6c6",
+      "body_bytes": 6492,
+      "ms": 103,
+      "problems": [],
+      "verdict": "OBSERVED"
+    },
+    {
+      "id": "matrix-root",
+      "method": "GET",
+      "url": "https://spiral-os-matrix-current.vercel.app/",
+      "observed_at": "2026-10-02T16:58:15.611Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html>\n<html lang=\"pt-BR\">\n<head><link rel=\"icon\" type=\"image/svg+xml\" href=\"./favicon.svg\">\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<meta n",
+      "body_sha256": "fa8f0a9a56ff48c14b0c2c3b153ec1059814e5b6ce605d03050e5a831e113f89",
+      "body_bytes": 91898,
+      "ms": 78,
+      "problems": [],
+      "verdict": "CONFIRMED"
+    },
+    {
+      "id": "lite-prod-root",
+      "method": "GET",
+      "url": "https://spiral-lite.vercel.app/",
+      "observed_at": "2026-10-02T16:58:15.689Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!doctype html><html lang=\"pt-BR\"><head><link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Spiral",
+      "body_sha256": "5c8325f1cc463e6fe52683c00f756eeb2292baad5286671ad8e3d09eef4b85a3",
+      "body_bytes": 16935,
+      "ms": 92,
+      "problems": [],
+      "verdict": "CONFIRMED"
+    },
+    {
+      "id": "talk-prod-root",
+      "method": "GET",
+      "url": "https://spiraltalk.vercel.app/",
+      "observed_at": "2026-10-02T16:58:15.781Z",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null,
+      "body_head": "<!DOCTYPE html><html lang=\"pt-BR\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"preload\" as=\"image\" href=\"/spiral-talk.svg\"/><link rel=\"s",
+      "body_sha256": "8616d6f0e0bd192b1f14fd5098994a5415b91d203e4678abd9d6ea9f084885d7",
+      "body_bytes": 18443,
+      "ms": 756,
+      "problems": [],
+      "verdict": "CONFIRMED"
+    }
+  ]
+}
