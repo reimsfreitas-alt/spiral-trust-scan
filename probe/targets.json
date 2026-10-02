@@ -128,6 +128,35 @@
       "body_contains": [
         "Quando um cliente contesta a cobrança"
       ]
+    },
+    {
+      "id": "lite-prev-RXT-slash",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/RXT/",
+      "body_contains": [
+        "MENU"
+      ]
+    },
+    {
+      "id": "lite-prev-RXT",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/RXT",
+      "body_contains": [
+        "MENU"
+      ]
+    },
+    {
+      "id": "lite-prev-rxt-slash",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/rxt/",
+      "body_contains": [
+        "MENU"
+      ]
+    },
+    {
+      "id": "lite-prod-rxt",
+      "url": "https://spiral-lite.vercel.app/rxt"
+    },
+    {
+      "id": "lite-prod-RXT-slash",
+      "url": "https://spiral-lite.vercel.app/RXT/"
     }
   ]
 }
