@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spiral-trust"
+version = "0.2.0"
+description = "Thin Python launcher for the Spiral Trust Scanner (@spiralcodes/trust-scanner on npm): a local, offline heuristic scan of agent code. It needs Node.js."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Spiral Codes" }]
+keywords = ["agent", "ai-agent", "mcp", "security", "static-analysis", "sarif"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Environment :: Console",
+  "Topic :: Security",
+]
+
+[project.urls]
+Homepage = "https://github.com/reimsfreitas-alt/spiral-trust-scan"
+Source = "https://github.com/reimsfreitas-alt/spiral-trust-scan/tree/main/python"
+Issues = "https://github.com/reimsfreitas-alt/spiral-trust-scan/issues"
+
+[project.scripts]
+spiral-trust = "spiral_trust.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

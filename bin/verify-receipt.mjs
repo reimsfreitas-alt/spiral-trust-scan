@@ -5,22 +5,11 @@
 //
 // receipt.json is the response of GET /api/v1/public/receipt?id=... (it contains `signedPayload`).
 // The public key is published at /api/v1/public/key and in this README.
-import { readFileSync } from 'node:fs';
-import { createPublicKey, verify } from 'node:crypto';
+import { readFileSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { canonical, verifyEd25519 } from '../src/verify.mjs';
 
-export function canonical(value) {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
-  if (value && typeof value === 'object') {
-    return `{${Object.keys(value).filter((k) => value[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`;
-  }
-  return JSON.stringify(value) ?? 'null';
-}
-
-export function verifyEd25519(signedPayload, signature, spkiBase64) {
-  if (!/^ed25519:[0-9a-f]{128}$/.test(signature)) return false;
-  const key = createPublicKey({ key: Buffer.from(spkiBase64, 'base64'), format: 'der', type: 'spki' });
-  return verify(null, Buffer.from(canonical(signedPayload), 'utf8'), key, Buffer.from(signature.slice(8), 'hex'));
-}
+export { canonical, verifyEd25519 };
 
 function main(argv) {
   const file = argv[0];
@@ -38,4 +27,8 @@ function main(argv) {
   return ok ? 0 : 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(main(process.argv.slice(2)));
+// realpath on both sides: an installed bin is a symlink, so argv[1] differs from import.meta.url.
+function isMain() {
+  try { return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]); } catch { return false; }
+}
+if (isMain()) process.exit(main(process.argv.slice(2)));

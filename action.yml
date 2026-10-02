@@ -1,5 +1,5 @@
 name: "Spiral Trust Scan"
-description: "Local heuristic scan of agent code for missing authorization, unverifiable effects, replay risk and unconfirmed irreversible actions. Runs on the runner; sends nothing anywhere."
+description: "Local heuristic scan of agent code for missing authorization, unverifiable effects, replay risk and unconfirmed irreversible actions. Runs on the runner; sends nothing unless you set receipt: true."
 author: "Spiral Codes"
 branding:
   icon: "shield"
@@ -9,13 +9,61 @@ inputs:
     description: "Path to scan, relative to the workspace."
     required: false
     default: "."
+  mode:
+    description: "quick: one 120,000-character scan window (same as the free web scanner). deep: up to 10 such windows (1,200,000 characters) merged by finding id; wider coverage, not a smarter analysis."
+    required: false
+    default: "quick"
   fail-on:
     description: "Fail the job at this severity or above: critical, high, medium or none."
     required: false
     default: "high"
+  receipt:
+    description: "true or false. When true, submit two sha256 digests and finding counts to the receipt service and show the validation link. Best-effort: a network failure never changes the scan result or exit code."
+    required: false
+    default: "false"
+  include-source:
+    description: "true or false. Only with receipt: true. Also send the repository name and commit SHA with the receipt request."
+    required: false
+    default: "false"
+  sarif-file:
+    description: "Optional path to also write a SARIF 2.1.0 file (for github/codeql-action/upload-sarif). Empty means no SARIF file."
+    required: false
+    default: ""
+outputs:
+  findings:
+    description: "Total number of findings."
+    value: ${{ steps.scan.outputs.findings }}
+  counts-json:
+    description: 'Findings by severity as JSON, for example {"critical":0,"high":1,"medium":2,"low":0}.'
+    value: ${{ steps.scan.outputs.counts-json }}
+  receipt_id:
+    description: "Receipt id; empty unless receipt is true and the receipt service answered."
+    value: ${{ steps.scan.outputs.receipt_id }}
+  validation_url:
+    description: "Public validation link for the receipt; empty unless a receipt was created."
+    value: ${{ steps.scan.outputs.validation_url }}
+  sarif-file:
+    description: "Path of the SARIF file that was written; empty if none."
+    value: ${{ steps.scan.outputs.sarif-file }}
 runs:
   using: "composite"
   steps:
     - name: Run Spiral Trust Scan
+      id: scan
       shell: bash
-      run: node "$GITHUB_ACTION_PATH/bin/trust-scan.mjs" "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}"
+      env:
+        SPIRAL_IN_PATH: ${{ inputs.path }}
+        SPIRAL_IN_MODE: ${{ inputs.mode }}
+        SPIRAL_IN_FAIL_ON: ${{ inputs.fail-on }}
+        SPIRAL_IN_RECEIPT: ${{ inputs.receipt }}
+        SPIRAL_IN_INCLUDE_SOURCE: ${{ inputs.include-source }}
+        SPIRAL_IN_SARIF: ${{ inputs.sarif-file }}
+      run: |
+        # Inputs go through env vars, never interpolated into the script text.
+        args=(--mode "$SPIRAL_IN_MODE" --fail-on "$SPIRAL_IN_FAIL_ON")
+        if [ "${SPIRAL_IN_RECEIPT,,}" = "true" ]; then args+=(--receipt); fi
+        if [ "${SPIRAL_IN_INCLUDE_SOURCE,,}" = "true" ]; then args+=(--include-source); fi
+        if [ -n "$SPIRAL_IN_SARIF" ]; then args+=(--sarif-file "$SPIRAL_IN_SARIF"); fi
+        # The CLI writes the Job Summary ($GITHUB_STEP_SUMMARY) and the outputs ($GITHUB_OUTPUT)
+        # before it exits, so they exist even when the threshold fails the step.
+        node "$GITHUB_ACTION_PATH/bin/trust-scan.mjs" "${args[@]}" -- "$SPIRAL_IN_PATH"

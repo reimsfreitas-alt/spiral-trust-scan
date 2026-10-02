@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.reimsfreitas-alt/spiral-trust-scanner",
+  "title": "Spiral Trust Scanner",
+  "description": "Local heuristic scan of agent code and offline Ed25519 receipt check. Heuristic, not proof.",
+  "websiteUrl": "https://github.com/reimsfreitas-alt/spiral-trust-scan",
+  "repository": {
+    "url": "https://github.com/reimsfreitas-alt/spiral-trust-scan",
+    "source": "github"
+  },
+  "version": "0.2.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@spiralcodes/trust-scanner",
+      "version": "0.2.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "SPIRAL_TRUST_ALLOWED_ROOTS",
+          "description": "Directories scan_path may read, separated by the OS path delimiter. Defaults to the server's working directory.",
+          "isRequired": false
+        }
+      ]
+    }
+  ]
+}

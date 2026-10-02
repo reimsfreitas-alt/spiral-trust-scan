@@ -2,126 +2,157 @@
 // Spiral Trust Scan — local, offline scan of agent code or tool logs for
 // missing authorization, unverifiable effects, replay risk and unconfirmed
 // irreversible actions. Heuristic: it looks for signals in the text, it does
-// not execute or prove anything. Nothing leaves your machine (no network code).
+// not execute or prove anything.
+//
+// The scan itself has no network code. The one opt-in exception is --receipt, which
+// loads src/receipt-client.mjs on demand (see that file for exactly what is sent).
 
-import { readdirSync, readFileSync, statSync, appendFileSync } from "node:fs";
-import { join, relative, extname, resolve } from "node:path";
-import { analyzeTrustSurface } from "../src/core.mjs";
+import { writeFileSync, realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { scanPaths, collectFiles, packWindows, exitCodeFor, MODES } from "../src/scan.mjs";
+import { computeTargetHash, computeFindingsHash, countsOf } from "../src/hashes.mjs";
+import { renderText, renderMarkdown, renderJson, renderSarif, renderSummary, writeJobSummary, writeStepOutputs } from "../src/report.mjs";
 
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "build", ".next", ".vercel", "vendor", "coverage", "__pycache__", ".venv", "venv"]);
-const EXTENSIONS = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".go", ".rb", ".java", ".json", ".yml", ".yaml", ".md", ".txt", ".log"]);
-const MAX_FILE_BYTES = 200 * 1024;
-const SURFACE_CHARS = 120_000; // same ceiling the web scanner applies
-const SEVERITY_RANK = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
-const URL_MATRIX = "https://spiral-os-matrix-current.vercel.app/";
+export { collectFiles, exitCodeFor };
+export const buildSurface = (files, root) => {
+  const { windows, included, truncated, skipped } = packWindows(files, root, "quick");
+  return { surface: windows[0].surface, included, truncated, skipped };
+};
+
+const FORMATS = ["text", "json", "markdown", "sarif"];
 
 function usage() {
-  return `Usage: trust-scan [paths...] [--format text|json|markdown] [--fail-on critical|high|medium|none] [--label name]
+  return `Usage: trust-scan [paths...] [options]
+       trust-scan mcp            start the MCP server on stdio (see README)
 
 Scans files locally and prints findings. Default path is the current directory.
-Exit code 0 = below threshold, 1 = a finding at or above --fail-on (default: high), 2 = usage error.`;
+
+Options:
+  --mode quick|deep          quick (default): one 120,000-character window, same as the web scanner.
+                             deep: up to 10 such windows (1,200,000 characters), merged by finding id.
+  --format text|json|markdown|sarif
+  --fail-on critical|high|medium|none   (default: high)
+  --label name
+  --sarif-file path          also write SARIF 2.1.0 to this file
+  --receipt                  OPT-IN: submit two digests and counts to the receipt service and print
+                             the validation link. Best-effort; never changes the scan result or exit code.
+  --include-source           with --receipt: also send GITHUB_REPOSITORY and GITHUB_SHA (off by default)
+  --receipt-endpoint url     override the receipt service URL (testing, self-hosting)
+  --                         end of options (the rest are paths)
+
+Exit code 0 = below threshold, 1 = a finding at or above --fail-on (default: high), 2 = usage error.
+In GitHub Actions the Job Summary and step outputs are written when GITHUB_STEP_SUMMARY / GITHUB_OUTPUT are set.`;
 }
 
 export function parseArgs(argv) {
-  const opts = { paths: [], format: "text", failOn: "high", label: "" };
+  const opts = { paths: [], format: "text", failOn: "high", label: "", mode: "quick", sarifFile: "", receipt: false, includeSource: false, receiptEndpoint: "" };
+  let rest = false;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
+    if (rest) { opts.paths.push(a); continue; }
     if (a === "--help" || a === "-h") return { help: true };
+    else if (a === "--") rest = true;
     else if (a === "--format") opts.format = argv[++i];
     else if (a === "--fail-on") opts.failOn = argv[++i];
     else if (a === "--label") opts.label = argv[++i] ?? "";
+    else if (a === "--mode") opts.mode = argv[++i];
+    else if (a === "--sarif-file") opts.sarifFile = argv[++i] ?? "";
+    else if (a === "--receipt") opts.receipt = true;
+    else if (a === "--include-source") opts.includeSource = true;
+    else if (a === "--receipt-endpoint") opts.receiptEndpoint = argv[++i] ?? "";
     else if (a.startsWith("--")) return { error: `unknown option ${a}` };
     else opts.paths.push(a);
   }
-  if (!["text", "json", "markdown"].includes(opts.format)) return { error: `invalid --format ${opts.format}` };
+  if (!FORMATS.includes(opts.format)) return { error: `invalid --format ${opts.format}` };
   if (!["critical", "high", "medium", "none"].includes(opts.failOn)) return { error: `invalid --fail-on ${opts.failOn}` };
+  if (!MODES.includes(opts.mode)) return { error: `invalid --mode ${opts.mode} (use quick or deep)` };
+  if (opts.sarifFile === "" && argv.includes("--sarif-file")) return { error: "--sarif-file needs a path" };
+  if (opts.receiptEndpoint) {
+    try { if (!/^https?:$/.test(new URL(opts.receiptEndpoint).protocol)) throw new Error(); } catch { return { error: "invalid --receipt-endpoint" }; }
+  }
   if (opts.paths.length === 0) opts.paths = ["."];
   return { opts };
 }
 
-export function collectFiles(paths) {
-  const files = [];
-  const walk = (p) => {
-    let st;
-    try { st = statSync(p); } catch { return; }
-    if (st.isDirectory()) {
-      for (const name of readdirSync(p).sort()) {
-        if (SKIP_DIRS.has(name)) continue;
-        walk(join(p, name));
-      }
-    } else if (st.isFile() && EXTENSIONS.has(extname(p).toLowerCase()) && st.size <= MAX_FILE_BYTES) {
-      files.push(p);
-    }
-  };
-  for (const p of paths) walk(resolve(p));
-  return files;
+// Scan + hashes. Synchronous and offline.
+function scanStage(opts) {
+  const scan = scanPaths({ paths: opts.paths, mode: opts.mode, label: opts.label });
+  if (!scan) return null;
+  const hashes = { target_hash: computeTargetHash(scan.scanned), findings_hash: computeFindingsHash(scan.report.findings) };
+  return { ...scan, hashes };
 }
 
-export function buildSurface(files, root) {
-  let surface = "";
-  let included = 0;
-  for (const f of files) {
-    let text;
-    try { text = readFileSync(f, "utf8"); } catch { continue; }
-    if (text.includes("\u0000")) continue; // binary
-    const chunk = `// FILE: ${relative(root, f)}\n${text}\n`;
-    if (surface.length + chunk.length > SURFACE_CHARS) {
-      return { surface, included, truncated: true, skipped: files.length - included };
-    }
-    surface += chunk;
-    included += 1;
+function finish(opts, scan, receipt, env, out) {
+  const { report, meta, hashes } = scan;
+  const exitCode = exitCodeFor(report, opts.failOn);
+  const ctx = { receipt, failOn: opts.failOn, exitCode };
+  let sarifFile = "";
+  const sarif = () => renderSarif(report, { scanned: scan.scanned, root: scan.root });
+  if (opts.sarifFile) {
+    try { writeFileSync(opts.sarifFile, JSON.stringify(sarif(), null, 2)); sarifFile = opts.sarifFile; }
+    catch (err) { console.error(`trust-scan: could not write ${opts.sarifFile}: ${err.message}`); }
   }
-  return { surface, included, truncated: false, skipped: 0 };
+  let text;
+  if (opts.format === "json") text = renderJson(report, meta, ctx, hashes);
+  else if (opts.format === "markdown") text = renderMarkdown(report, meta, ctx);
+  else if (opts.format === "sarif") text = JSON.stringify(sarif(), null, 2);
+  else text = renderText(report, meta, ctx);
+  out(text);
+  writeJobSummary(env, renderSummary(report, meta, ctx)); // best-effort
+  writeStepOutputs(env, { report, ctx, sarifFile });      // best-effort
+  return exitCode;
 }
 
-export function render(report, meta, format) {
-  if (format === "json") return JSON.stringify({ ...report, meta }, null, 2);
-  const note = "Heuristic scan: it looks for signals in the text, it does not run or prove anything. A missing signal is not proof of a gap, and a present one is not proof of safety.";
-  const trunc = meta.truncated ? `Only the first ${meta.included} of ${meta.included + meta.skipped} files fit the ${SURFACE_CHARS}-character scan window; ${meta.skipped} file(s) were not scanned.` : "";
-  const s = report.summary;
-  if (format === "markdown") {
-    const lines = [`## Spiral Trust Scan`, ``, `${meta.included} file(s) scanned locally. Critical ${s.criticalFindings} · High ${s.highFindings} · Medium ${s.mediumFindings} · Low ${s.lowFindings}`, ``];
-    for (const f of report.findings) lines.push(`- **[${f.severity}] ${f.title}** — ${f.recommendation}`);
-    if (report.findings.length === 0) lines.push("No findings from the heuristic checks.");
-    lines.push("", `_${note}_`);
-    if (trunc) lines.push("", `_${trunc}_`);
-    lines.push("", `Free scanner and written review: ${URL_MATRIX}#trust-scanner`);
-    return lines.join("\n");
-  }
-  const lines = [`Spiral Trust Scan — ${meta.included} file(s) scanned locally (nothing leaves your machine)`, `Critical ${s.criticalFindings} · High ${s.highFindings} · Medium ${s.mediumFindings} · Low ${s.lowFindings}`, ""];
-  for (const f of report.findings) lines.push(`[${f.severity}] ${f.title}`, `    ${f.evidence}`, `    Fix: ${f.recommendation}`, "");
-  if (report.findings.length === 0) lines.push("No findings from the heuristic checks.", "");
-  lines.push(note);
-  if (trunc) lines.push(trunc);
-  lines.push(`More: ${URL_MATRIX}#trust-scanner`);
-  return lines.join("\n");
-}
-
-export function exitCodeFor(report, failOn) {
-  if (failOn === "none") return 0;
-  const threshold = { critical: 4, high: 3, medium: 2 }[failOn];
-  return report.findings.some((f) => SEVERITY_RANK[f.severity] >= threshold) ? 1 : 0;
-}
-
+// Synchronous entry point (no receipt). Kept for tests and embedding.
 export function run(argv, env = process.env, out = (t) => console.log(t)) {
   const parsed = parseArgs(argv);
   if (parsed.help) { out(usage()); return 0; }
   if (parsed.error) { console.error(`trust-scan: ${parsed.error}\n${usage()}`); return 2; }
   const { opts } = parsed;
-  const root = resolve(opts.paths.length === 1 ? opts.paths[0] : ".");
-  const files = collectFiles(opts.paths);
-  if (files.length === 0) { console.error("trust-scan: no scannable files found"); return 2; }
-  const { surface, included, truncated, skipped } = buildSurface(files, root);
-  const report = analyzeTrustSurface("repo", opts.label || root, surface);
-  const meta = { included, truncated, skipped };
-  out(render(report, meta, opts.format));
-  if (env.GITHUB_STEP_SUMMARY && opts.format !== "json") {
-    try { appendFileSync(env.GITHUB_STEP_SUMMARY, render(report, meta, "markdown") + "\n"); } catch { /* summary is best-effort */ }
-  }
-  return exitCodeFor(report, opts.failOn);
+  if (opts.receipt) { console.error("trust-scan: --receipt needs the asynchronous entry point (main)"); return 2; }
+  const scan = scanStage(opts);
+  if (!scan) { console.error("trust-scan: no scannable files found"); return 2; }
+  return finish(opts, scan, { status: "off" }, env, out);
 }
 
-import { fileURLToPath } from "node:url";
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  process.exit(run(process.argv.slice(2)));
+// Full entry point, including the opt-in receipt.
+export async function main(argv, env = process.env, out = (t) => console.log(t), deps = {}) {
+  if (argv[0] === "mcp") {
+    const { startStdio } = await import("../mcp/server.mjs");
+    startStdio();
+    return new Promise(() => {}); // runs until stdin closes
+  }
+  const parsed = parseArgs(argv);
+  if (parsed.help) { out(usage()); return 0; }
+  if (parsed.error) { console.error(`trust-scan: ${parsed.error}\n${usage()}`); return 2; }
+  const { opts } = parsed;
+  const scan = scanStage(opts);
+  if (!scan) { console.error("trust-scan: no scannable files found"); return 2; }
+  let receipt = { status: "off" };
+  if (opts.receipt) {
+    try {
+      const client = deps.client ?? await import("../src/receipt-client.mjs"); // the only place the network module is loaded
+      const submitted = {
+        counts: countsOf(scan.report),
+        threshold: opts.failOn,
+        files_scanned: scan.meta.included,
+        target_hash: scan.hashes.target_hash,
+        findings_hash: scan.hashes.findings_hash,
+      };
+      const source = opts.includeSource ? { repo: env.GITHUB_REPOSITORY, commit: env.GITHUB_SHA } : undefined;
+      const payload = client.buildReceiptPayload({ targetHash: submitted.target_hash, findingsHash: submitted.findings_hash, counts: submitted.counts, threshold: submitted.threshold, filesScanned: submitted.files_scanned, source });
+      const res = await client.submitReceipt(payload, opts.receiptEndpoint ? { endpoint: opts.receiptEndpoint } : {});
+      receipt = res.ok ? { status: "ok", data: res.data, submitted } : { status: "failed", error: res.error };
+    } catch (err) {
+      receipt = { status: "failed", error: String(err?.message ?? err).slice(0, 160) }; // best-effort: never throws past here
+    }
+  }
+  return finish(opts, scan, receipt, env, out);
+}
+
+function isMain() {
+  try { return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]); } catch { return false; }
+}
+if (isMain()) {
+  main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
 }

@@ -1,0 +1,35 @@
+# Publishes @spiralcodes/trust-scanner to npm with provenance when a GitHub Release is published.
+# Uses npm trusted publishing (OIDC): no long-lived npm token is stored in this repository.
+# Owner-only one-time step: configure this repository + this workflow file as a trusted
+# publisher on npmjs.com (see PUBLISHING.md). Until that is done this job fails at the publish step.
+name: publish-npm
+on:
+  release:
+    types: [published]
+permissions:
+  contents: read
+  id-token: write   # OIDC token for trusted publishing and the provenance attestation
+jobs:
+  publish:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - name: Require npm >= 11.5.1 (trusted publishing)
+        run: |
+          npm --version
+          node -e "const [a,b,c]=process.argv[1].split('.').map(Number); if (a<11 || (a===11 && (b<5 || (b===5 && c<1)))) { console.error('npm >= 11.5.1 is required for trusted publishing'); process.exit(1); }" "$(npm --version)"
+      - name: Release tag must match package.json version
+        run: |
+          pkg="$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME#v}" != "$pkg" ]; then
+            echo "Release tag $GITHUB_REF_NAME does not match package.json version $pkg" >&2
+            exit 1
+          fi
+      - run: npm test
+      - run: npm pack --dry-run
+      - run: npm publish --provenance --access public

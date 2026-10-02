@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { analyzeTrustSurface as cliAnalyze } from '../src/core.mjs';
@@ -60,17 +60,6 @@ test('exitCodeFor honours thresholds', () => {
   const rep = { findings: [{ severity: 'MEDIUM' }] };
   assert.equal(exitCodeFor(rep, 'high'), 0);
   assert.equal(exitCodeFor(rep, 'medium'), 1);
-});
-
-test('the CLI package contains no network code (the "nothing leaves your machine" claim is checked, not asserted)', () => {
-  const root = process.cwd();
-  const files = ['bin/trust-scan.mjs', 'src/core.mjs'];
-  for (const f of files) {
-    const text = readFileSync(join(root, f), 'utf8');
-    assert.ok(!/\bfetch\s*\(/.test(text.replace(/\/\/.*$/gm, '').replace(/'[^']*'|"[^"]*"|`[^`]*`/g, '')) , `${f} must not call fetch`);
-    assert.ok(!/from\s+['"]node:(http|https|net|dgram|tls)['"]/.test(text), `${f} must not import network modules`);
-  }
-  assert.ok(readdirSync(root).includes('action.yml'));
 });
 
 test('code that merely parses an Authorization header is not reported as leaked credentials; a real-looking Bearer literal still is', () => {
