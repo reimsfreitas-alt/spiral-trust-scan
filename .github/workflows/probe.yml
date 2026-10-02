@@ -1,0 +1,46 @@
+name: probe
+# Independent HTTP observer for the Spiral surfaces. Executor != observer != verifier:
+# this job only observes; it never deploys or edits anything outside the 'evidence' branch.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["probe/**", ".github/workflows/probe.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: probe
+  cancel-in-progress: false
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Observe
+        run: node probe/probe.mjs probe/targets.json probe/out/latest.json
+      - name: Publish to evidence branch
+        run: |
+          set -e
+          git config user.name "spiral-probe"
+          git config user.email "probe@users.noreply.github.com"
+          cp probe/out/latest.json /tmp/latest.json
+          if git ls-remote --exit-code --heads origin evidence >/dev/null 2>&1; then
+            git fetch origin evidence
+            git checkout -B evidence origin/evidence
+          else
+            git checkout --orphan evidence
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          cp /tmp/latest.json latest.json
+          mkdir -p history
+          cp /tmp/latest.json "history/$(date -u +%Y%m%dT%H%M%SZ).json"
+          ls -1 history | head -n -48 | sed 's#^#history/#' | xargs -r git rm -q
+          git add latest.json history
+          git commit -m "probe $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "nothing to commit"
+          git push origin evidence

@@ -1,0 +1,18 @@
+{
+  "note": "Edit this file and push to main: the workflow re-runs and writes the result to branch 'evidence' (probe/out/latest.json). Claude reads it with git; no human or connector in the loop.",
+  "targets": [
+    { "id": "dist-prod-root", "url": "https://spiral-distribution-engine.vercel.app/", "expect_status": 200 },
+    { "id": "dist-prod-unknown-404", "url": "https://spiral-distribution-engine.vercel.app/rota-inexistente-123", "expect_status": 404 },
+    { "id": "dist-prod-badge-404", "url": "https://spiral-distribution-engine.vercel.app/embed/badge?r=FAKE", "expect_status": 404 },
+    { "id": "dist-prod-chargeback-404", "url": "https://spiral-distribution-engine.vercel.app/chargeback/saas/sao-paulo", "expect_status": 404 },
+    { "id": "dist-prod-sitemap-404", "url": "https://spiral-distribution-engine.vercel.app/sitemap.xml", "expect_status": 404 },
+    { "id": "dist-prod-health", "url": "https://spiral-distribution-engine.vercel.app/health", "expect_status": 200, "body_not_contains": ["localhost"] },
+    { "id": "truth-prod-root", "url": "https://spiral-truth.vercel.app/", "expect_status": 200, "body_contains": ["Quando um cliente contesta a cobrança"] },
+    { "id": "truth-prod-badge-404", "url": "https://spiral-truth.vercel.app/embed/badge?r=FAKE", "expect_status": 404 },
+    { "id": "truth-prod-partner-404", "url": "https://spiral-truth.vercel.app/api/partner/webhook", "method": "POST", "body": {}, "expect_status": 404 },
+    { "id": "intent-prod-voice-route", "url": "https://spiral-intent-v21-exceptional-git-main-spiral-codes.vercel.app/api/spiral-voice", "note": "404 today = mic root cause; after merge of fix/intent-mic-20261002 it must NOT be 404" },
+    { "id": "matrix-root", "url": "https://spiral-os-matrix-current.vercel.app/", "expect_status": 200 },
+    { "id": "lite-prod-root", "url": "https://spiral-lite.vercel.app/", "expect_status": 200 },
+    { "id": "talk-prod-root", "url": "https://spiraltalk.vercel.app/", "expect_status": 200 }
+  ]
+}
