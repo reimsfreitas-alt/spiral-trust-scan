@@ -157,6 +157,28 @@
     {
       "id": "lite-prod-RXT-slash",
       "url": "https://spiral-lite.vercel.app/RXT/"
+    },
+    {
+      "id": "lite-prev2-rxt",
+      "url": "https://spiral-lite-5xkmotp63-spiral-codes.vercel.app/rxt",
+      "expect_status": 308,
+      "expect_location": "/RXT/"
+    },
+    {
+      "id": "lite-prev2-RXT",
+      "url": "https://spiral-lite-5xkmotp63-spiral-codes.vercel.app/RXT/",
+      "expect_status": 200,
+      "body_contains": [
+        "MENU"
+      ]
+    },
+    {
+      "id": "lite-prev2-app",
+      "url": "https://spiral-lite-5xkmotp63-spiral-codes.vercel.app/app",
+      "expect_status": 200,
+      "body_contains": [
+        "MENU"
+      ]
     }
   ]
 }

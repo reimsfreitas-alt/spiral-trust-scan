@@ -1,0 +1,449 @@
+{
+  "schema": "spiral.probe.v1",
+  "run_at": "2026-10-02T17:12:05.660Z",
+  "runner": "local",
+  "summary": {
+    "DEVIATED": 22,
+    "OBSERVED": 4
+  },
+  "results": [
+    {
+      "id": "dist-prod-root",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/",
+      "observed_at": "2026-10-02T17:12:04.439Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 175,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-unknown-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/rota-inexistente-123",
+      "observed_at": "2026-10-02T17:12:04.614Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 34,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-badge-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/embed/badge?r=FAKE",
+      "observed_at": "2026-10-02T17:12:04.648Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 3,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-chargeback-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/chargeback/saas/sao-paulo",
+      "observed_at": "2026-10-02T17:12:04.651Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 2,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-sitemap-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/sitemap.xml",
+      "observed_at": "2026-10-02T17:12:04.653Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 2,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prod-health",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine.vercel.app/health",
+      "observed_at": "2026-10-02T17:12:04.655Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "a526a014093b9637d042ab17ab996ad26e5f34ca550c38fab08079a51c3e4106",
+      "body_bytes": 124,
+      "ms": 2,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prod-root",
+      "method": "GET",
+      "url": "https://spiral-truth.vercel.app/",
+      "observed_at": "2026-10-02T17:12:04.657Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-truth.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "72e1d0eabe605259fc6591ba6a70d5779b48af471d3da4546e480e217931671b",
+      "body_bytes": 110,
+      "ms": 99,
+      "problems": [
+        "status 403 != 200",
+        "body lacks \"Quando um cliente contesta a cobrança\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prod-badge-404",
+      "method": "GET",
+      "url": "https://spiral-truth.vercel.app/embed/badge?r=FAKE",
+      "observed_at": "2026-10-02T17:12:04.756Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-truth.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "72e1d0eabe605259fc6591ba6a70d5779b48af471d3da4546e480e217931671b",
+      "body_bytes": 110,
+      "ms": 20,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prod-partner-404",
+      "method": "POST",
+      "url": "https://spiral-truth.vercel.app/api/partner/webhook",
+      "observed_at": "2026-10-02T17:12:04.776Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-truth.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "72e1d0eabe605259fc6591ba6a70d5779b48af471d3da4546e480e217931671b",
+      "body_bytes": 110,
+      "ms": 11,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "intent-prod-voice-route",
+      "method": "GET",
+      "url": "https://spiral-intent-v21-exceptional-git-main-spiral-codes.vercel.app/api/spiral-voice",
+      "observed_at": "2026-10-02T17:12:04.787Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-intent-v21-exceptional-git-main-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "35221a29eca86624ae97970dac7c6fdf355b3f81c9a3310e2f92858342bcb77e",
+      "body_bytes": 149,
+      "ms": 169,
+      "problems": [],
+      "verdict": "OBSERVED"
+    },
+    {
+      "id": "matrix-root",
+      "method": "GET",
+      "url": "https://spiral-os-matrix-current.vercel.app/",
+      "observed_at": "2026-10-02T17:12:04.956Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-os-matrix-current.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "8fe81eb5fa2d2d4fda2622d32fa16f710a8434bb8cfc486ba60a228a264751ea",
+      "body_bytes": 122,
+      "ms": 38,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prod-root",
+      "method": "GET",
+      "url": "https://spiral-lite.vercel.app/",
+      "observed_at": "2026-10-02T17:12:04.994Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "c4aaca350553e6c93286d412815a23ef7469f166b1c5b5c8c617f51b2b95c66b",
+      "body_bytes": 109,
+      "ms": 72,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "talk-prod-root",
+      "method": "GET",
+      "url": "https://spiraltalk.vercel.app/",
+      "observed_at": "2026-10-02T17:12:05.066Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiraltalk.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "773add4ca8ba84da5f3741033a987918cf84c5bc803ad6d12c17d17b5f140596",
+      "body_bytes": 108,
+      "ms": 145,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-app",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/app",
+      "observed_at": "2026-10-02T17:12:05.211Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 109,
+      "problems": [
+        "status 403 != 200",
+        "body lacks \"MENU\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-rxt",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/rxt",
+      "observed_at": "2026-10-02T17:12:05.320Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 21,
+      "problems": [
+        "status 403 != 200",
+        "body lacks \"MENU\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-root",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/",
+      "observed_at": "2026-10-02T17:12:05.341Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 1,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prod-app",
+      "method": "GET",
+      "url": "https://spiral-lite.vercel.app/app",
+      "observed_at": "2026-10-02T17:12:05.342Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "c4aaca350553e6c93286d412815a23ef7469f166b1c5b5c8c617f51b2b95c66b",
+      "body_bytes": 109,
+      "ms": 2,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "intent-prev-voice-get",
+      "method": "GET",
+      "url": "https://spiral-intent-v21-exceptional-hlbqu9xsc-spiral-codes.vercel.app/api/spiral-voice",
+      "observed_at": "2026-10-02T17:12:05.344Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-intent-v21-exceptional-hlbqu9xsc-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "39e47eeae1d302d6bccf0051cfe0dbd4412ac00451825309dd2b1b468ca071af",
+      "body_bytes": 150,
+      "ms": 72,
+      "problems": [],
+      "verdict": "OBSERVED"
+    },
+    {
+      "id": "intent-prev-qvk",
+      "method": "GET",
+      "url": "https://spiral-intent-v21-exceptional-hlbqu9xsc-spiral-codes.vercel.app/QVK",
+      "observed_at": "2026-10-02T17:12:05.416Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-intent-v21-exceptional-hlbqu9xsc-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "39e47eeae1d302d6bccf0051cfe0dbd4412ac00451825309dd2b1b468ca071af",
+      "body_bytes": 150,
+      "ms": 20,
+      "problems": [
+        "status 403 != 200"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "dist-prev-cleanup-404",
+      "method": "GET",
+      "url": "https://spiral-distribution-engine-qtahyettw-spiral-codes.vercel.app/rota-inexistente-123",
+      "observed_at": "2026-10-02T17:12:05.436Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-distribution-engine-qtahyettw-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "09cd535d38d882d20d5d49ca80d805f2904e5cf2d1a9ef90694067d6febf99fe",
+      "body_bytes": 147,
+      "ms": 129,
+      "problems": [
+        "status 403 != 404"
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "truth-prev-root",
+      "method": "GET",
+      "url": "https://spiral-truth-r9fv429w6-spiral-codes.vercel.app/",
+      "observed_at": "2026-10-02T17:12:05.565Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-truth-r9fv429w6-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "b61ceb80024c3308ec598eca0daafb33ef53a07cd44e5fe643f3f7150ac9ad8a",
+      "body_bytes": 133,
+      "ms": 72,
+      "problems": [
+        "status 403 != 200",
+        "body lacks \"Quando um cliente contesta a cobrança\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-RXT-slash",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/RXT/",
+      "observed_at": "2026-10-02T17:12:05.637Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 1,
+      "problems": [
+        "body lacks \"MENU\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-RXT",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/RXT",
+      "observed_at": "2026-10-02T17:12:05.638Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 2,
+      "problems": [
+        "body lacks \"MENU\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prev-rxt-slash",
+      "method": "GET",
+      "url": "https://spiral-lite-oc32m03rf-spiral-codes.vercel.app/rxt/",
+      "observed_at": "2026-10-02T17:12:05.640Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite-oc32m03rf-spiral-codes.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "54f0de1b8a5632bf53d8580dedeaf1e85b3b235a9856c3f06f83f9807d6490a5",
+      "body_bytes": 132,
+      "ms": 1,
+      "problems": [
+        "body lacks \"MENU\""
+      ],
+      "verdict": "DEVIATED"
+    },
+    {
+      "id": "lite-prod-rxt",
+      "method": "GET",
+      "url": "https://spiral-lite.vercel.app/rxt",
+      "observed_at": "2026-10-02T17:12:05.641Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "c4aaca350553e6c93286d412815a23ef7469f166b1c5b5c8c617f51b2b95c66b",
+      "body_bytes": 109,
+      "ms": 1,
+      "problems": [],
+      "verdict": "OBSERVED"
+    },
+    {
+      "id": "lite-prod-RXT-slash",
+      "method": "GET",
+      "url": "https://spiral-lite.vercel.app/RXT/",
+      "observed_at": "2026-10-02T17:12:05.642Z",
+      "status": 403,
+      "content_type": "text/plain",
+      "location": null,
+      "body_head": "Host not in allowlist: spiral-lite.vercel.app. Add this host to your network egress settings to allow access.",
+      "body_sha256": "c4aaca350553e6c93286d412815a23ef7469f166b1c5b5c8c617f51b2b95c66b",
+      "body_bytes": 109,
+      "ms": 18,
+      "problems": [],
+      "verdict": "OBSERVED"
+    }
+  ]
+}
